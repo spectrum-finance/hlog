@@ -39,20 +39,20 @@ data Logging f = Logging
   , errorM :: forall a. Loggable a => a -> f ()
   }
 
-loggingForComponent :: MonadIO f => Component -> Logging f
+loggingForComponent :: (Applicative f, MonadIO m) => Component -> f (Logging m)
 loggingForComponent name = do
-  Logging
+  pure Logging
     { debugM = (liftIO . SL.debugM name) . toLog
     , infoM  = (liftIO . SL.infoM name) . toLog
     , warnM  = (liftIO . SL.warningM name) . toLog
     , errorM = (liftIO . SL.errorM name) . toLog
     }
 
-data MakeLogging f = MakeLogging
-  { forComponent :: Component -> Logging f
+data MakeLogging f m = MakeLogging
+  { forComponent :: Component -> f (Logging m)
   }
 
-makeLogging :: (MonadIO f, MonadIO m) => LoggingConfig -> f (MakeLogging m)
+makeLogging :: (MonadIO f, MonadIO m) => LoggingConfig -> f (MakeLogging f m)
 makeLogging LoggingConfig{..} = do
   let
     setHandler (path, level, format) = do
