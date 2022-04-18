@@ -1,0 +1,36 @@
+cabal-version:       3.0
+
+name:                hlog
+synopsis:            Logging Framework
+version:             0.0.1.0
+homepage:            https://github.com/oskin1/hlog
+license:             BSD-3-Clause
+author:              Ilya Oskin
+maintainer:          Ilya Oskin
+copyright:           Ilya Oskin
+category:            System.Logging
+build-type:          Simple
+
+library
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  default-extensions:
+    RankNTypes
+    RecordWildCards
+  exposed-modules:     System.Logging.Hlog
+  ghc-options:         -Wall -fno-warn-name-shadowing
+  build-depends:
+    base >= 4.11 && < 5,
+    text == 1.2.5.0,
+    hslogger == 1.3.1.0,
+    rio == 0.1.21.0
+
+test-suite hlog-tests
+  type:             exitcode-stdio-1.0
+  hs-source-dirs:   test
+  main-is:          Main.hs
+  default-language: Haskell2010
+  ghc-options:      -Wall -threaded
+  build-depends:    base >=4.11 && < 5
+                  , hlog
+                  , hedgehog
