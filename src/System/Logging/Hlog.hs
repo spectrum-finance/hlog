@@ -60,8 +60,8 @@ makeLogging LoggingConfig{..} = do
       updateGlobalLogger rootLoggerName (addHandler lh)
     overrideLevel (component, level) = updateGlobalLogger component (setLevel $ fromHlogLevel level)
   liftIO $ updateGlobalLogger rootLoggerName (setLevel DEBUG)
-  _ <- liftIO $ mapM setHandler fileHandlers
-  _ <- liftIO $ mapM overrideLevel levelOverrides
+  void . liftIO $ mapM setHandler fileHandlers
+  void . liftIO $ mapM overrideLevel levelOverrides
   pure MakeLogging
     { forComponent = loggingForComponent
     }
