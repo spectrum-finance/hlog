@@ -7,7 +7,8 @@ module System.Logging.Hlog
   , makeLogging
   ) where
 
-import RIO hiding (LogLevel)
+import RIO   hiding (LogLevel)
+import Dhall        (FromDhall)
 
 import System.Log.Logger as SL
 import System.Log.Handler.Simple
@@ -19,6 +20,7 @@ data LogLevel
   | Error
   | Warn
   | Debug
+  deriving (Generic, Eq, Show, FromDhall)
 
 type Format = String
 
@@ -27,10 +29,15 @@ type Component = String
 data LoggingConfig = LoggingConfig
   { fileHandlers   :: [(FilePath, LogLevel, Format)]
   , levelOverrides :: [(Component, LogLevel)]
-  }
+  } deriving (Generic, Show, FromDhall)
+
+instance FromDhall (FilePath, LogLevel, Format)
 
 class Loggable a where
   toLog :: a -> String
+
+instance Loggable String where
+  toLog = id
 
 data Logging f = Logging
   { debugM :: forall a. Loggable a => a -> f ()
@@ -60,8 +67,8 @@ makeLogging LoggingConfig{..} = do
       updateGlobalLogger rootLoggerName (addHandler lh)
     overrideLevel (component, level) = updateGlobalLogger component (setLevel $ fromHlogLevel level)
   liftIO $ updateGlobalLogger rootLoggerName (setLevel DEBUG)
-  void . liftIO $ mapM setHandler fileHandlers
-  void . liftIO $ mapM overrideLevel levelOverrides
+  RIO.void . liftIO $ mapM setHandler fileHandlers
+  RIO.void . liftIO $ mapM overrideLevel levelOverrides
   pure MakeLogging
     { forComponent = loggingForComponent
     }
