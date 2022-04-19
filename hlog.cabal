@@ -17,13 +17,18 @@ library
   default-extensions:
     RankNTypes
     RecordWildCards
+    DeriveAnyClass
+    DeriveGeneric
+    OverloadedStrings
+    FlexibleInstances
   exposed-modules:     System.Logging.Hlog
   ghc-options:         -Wall -fno-warn-name-shadowing
   build-depends:
     base >= 4.11 && < 5,
     text == 1.2.5.0,
     hslogger == 1.3.1.0,
-    rio == 0.1.21.0
+    rio == 0.1.21.0,
+    dhall
 
 test-suite hlog-tests
   type:             exitcode-stdio-1.0
