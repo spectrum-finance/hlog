@@ -29,6 +29,7 @@ type Component = String
 data LoggingConfig = LoggingConfig
   { fileHandlers   :: [(FilePath, LogLevel, Format)]
   , levelOverrides :: [(Component, LogLevel)]
+  , rootLogLevel   :: LogLevel
   } deriving (Generic, Show, FromDhall)
 
 instance FromDhall (FilePath, LogLevel, Format)
@@ -66,7 +67,7 @@ makeLogging LoggingConfig{..} = do
       lh <- fileHandler path (fromHlogLevel level) <&> (flip setFormatter) (simpleLogFormatter format)
       updateGlobalLogger rootLoggerName (addHandler lh)
     overrideLevel (component, level) = updateGlobalLogger component (setLevel $ fromHlogLevel level)
-  liftIO $ updateGlobalLogger rootLoggerName (setLevel DEBUG)
+  liftIO $ updateGlobalLogger rootLoggerName (setLevel (fromHlogLevel rootLogLevel))
   RIO.void . liftIO $ mapM setHandler fileHandlers
   RIO.void . liftIO $ mapM overrideLevel levelOverrides
   pure MakeLogging
