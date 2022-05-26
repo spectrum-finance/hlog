@@ -5,6 +5,7 @@ module System.Logging.Hlog
   , LoggingConfig(..)
   , LogLevel(..)
   , makeLogging
+  , translateMakeLogging
   ) where
 
 import RIO   hiding (LogLevel)
@@ -56,9 +57,13 @@ loggingForComponent name = do
     , errorM = (liftIO . SL.errorM name) . toLog
     }
 
-data MakeLogging f m = MakeLogging
+newtype MakeLogging f m = MakeLogging
   { forComponent :: Component -> f (Logging m)
   }
+
+translateMakeLogging :: (forall a. f a -> g a) -> MakeLogging f m -> MakeLogging g m
+translateMakeLogging funK MakeLogging{..} =
+  MakeLogging $ funK . forComponent
 
 makeLogging :: (MonadIO f, MonadIO m) => LoggingConfig -> f (MakeLogging f m)
 makeLogging LoggingConfig{..} = do
