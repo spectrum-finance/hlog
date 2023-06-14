@@ -75,6 +75,7 @@ makeLogging LoggingConfig{..} = do
   liftIO $ updateGlobalLogger rootLoggerName (setLevel (fromHlogLevel rootLogLevel))
   RIO.void . liftIO $ mapM setHandler fileHandlers
   RIO.void . liftIO $ mapM overrideLevel levelOverrides
+  RIO.void . liftIO $ print "Init logging!"
   pure MakeLogging
     { forComponent = loggingForComponent
     }
