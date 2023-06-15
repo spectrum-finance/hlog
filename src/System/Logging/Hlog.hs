@@ -69,6 +69,7 @@ makeLogging :: (MonadIO f, MonadIO m) => LoggingConfig -> f (MakeLogging f m)
 makeLogging LoggingConfig{..} = do
   let
     setHandler (path, level, format) = do
+      updateGlobalLogger rootLoggerName removeHandler
       lh <- fileHandler path (fromHlogLevel level) <&> (flip setFormatter) (simpleLogFormatter format)
       updateGlobalLogger rootLoggerName (addHandler lh)
     overrideLevel (component, level) = updateGlobalLogger component (setLevel $ fromHlogLevel level)
