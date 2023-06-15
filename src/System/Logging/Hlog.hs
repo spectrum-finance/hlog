@@ -68,15 +68,14 @@ translateMakeLogging funK MakeLogging{..} =
 makeLogging :: (MonadIO f, MonadIO m) => LoggingConfig -> f (MakeLogging f m)
 makeLogging LoggingConfig{..} = do
   let
-    setHandler (path, level, format) = do
+    setHandler (path, level, _) = do
       updateGlobalLogger rootLoggerName removeHandler
-      lh <- fileHandler path (fromHlogLevel level) <&> (flip setFormatter) (simpleLogFormatter format)
+      lh <- fileHandler path (fromHlogLevel level) <&> flip setFormatter nullFormatter
       updateGlobalLogger rootLoggerName (addHandler lh)
     overrideLevel (component, level) = updateGlobalLogger component (setLevel $ fromHlogLevel level)
   liftIO $ updateGlobalLogger rootLoggerName (setLevel (fromHlogLevel rootLogLevel))
   RIO.void . liftIO $ mapM setHandler fileHandlers
   RIO.void . liftIO $ mapM overrideLevel levelOverrides
-  RIO.void . liftIO $ print "Init logging!"
   pure MakeLogging
     { forComponent = loggingForComponent
     }
